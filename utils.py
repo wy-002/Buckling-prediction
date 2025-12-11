@@ -34,9 +34,7 @@ def load_data(data_path='./data/pcr_400.csv'):
         print(f"加载数据时发生错误: {e}")
         return None
 
-def prepare_data(data, num_attribs):
-    print(f"预处理数据形状: {data.shape}")
-    
+def prepare_data(data, num_attribs, is_tree_model=False):
     constant_features = []
     valid_attribs = []
     
@@ -46,20 +44,28 @@ def prepare_data(data, num_attribs):
             constant_features.append(attrib)
         else:
             valid_attribs.append(attrib)
-    
+            
     if constant_features:
         print(f"共移除 {len(constant_features)} 个常数特征")
     
-    num_pipeline = Pipeline([
-        ('imputer', SimpleImputer(strategy="mean")),
-        ('mm_scaler', MinMaxScaler())
-    ])
+    if is_tree_model:
+        num_pipeline = Pipeline([
+            ('imputer', SimpleImputer(strategy="mean")),
+        ])
+        print(f"  使用树模型预处理管道：仅进行缺失值填充")
+    else:
+        num_pipeline = Pipeline([
+            ('imputer', SimpleImputer(strategy="mean")),
+            ('mm_scaler', MinMaxScaler())  # 保留归一化
+        ])
+        print(f"  使用标准预处理管道：缺失值填充 + 归一化")
     
     full_pipeline = ColumnTransformer([
         ("num", num_pipeline, valid_attribs),
     ])
     
     return full_pipeline.fit_transform(data), full_pipeline, valid_attribs
+
 
 def split_data(data, target_column, stratify_column=None, test_size=0.2, random_state=42):
     if stratify_column and stratify_column not in data.columns:
@@ -398,4 +404,5 @@ def analyze_data_sufficiency_all_models(models_dict, X, y, cv=5):
         json.dump(overall_analysis, f, indent=2, ensure_ascii=False)
     print(f"\n总体分析结果已保存到: {overall_analysis_path}")
     
+
     return results
