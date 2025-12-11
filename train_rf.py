@@ -51,7 +51,7 @@ if __name__ == "__main__":
     data_num = train_set.drop(target_column, axis=1)
     num_attribs = list(data_num.columns)
     
-    data_prepared, full_pipeline, valid_attribs = prepare_data(data_num, num_attribs)
+    data_prepared, full_pipeline, valid_attribs = prepare_data(data_num, num_attribs, is_tree_model=True)
     
     os.makedirs('./save_model/RF', exist_ok=True)
     dump(full_pipeline, './save_model/RF/full_pipeline.joblib')
@@ -62,4 +62,5 @@ if __name__ == "__main__":
     y_test = test_set[target_column].copy()
     
     print("RF Testing:")
+
     final_predictions_rf, final_re_rf = test_model(rf_model, X_test, y_test, full_pipeline, 'RF')
