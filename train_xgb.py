@@ -51,7 +51,7 @@ if __name__ == "__main__":
     data_num = train_set.drop(target_column, axis=1)
     num_attribs = list(data_num.columns)
     
-    data_prepared, full_pipeline, valid_attribs = prepare_data(data_num, num_attribs)
+    data_prepared, full_pipeline, valid_attribs = prepare_data(data_num, num_attribs, is_tree_model=True)
     
     os.makedirs('./save_model/XGB', exist_ok=True)
     dump(full_pipeline, './save_model/XGB/full_pipeline.joblib')
@@ -62,4 +62,5 @@ if __name__ == "__main__":
     y_test = test_set[target_column].copy()
     
     print("XGB Testing:")
+
     final_predictions_xgb, final_re_xgb = test_model(xgb_model, X_test, y_test, full_pipeline, 'XGB')
